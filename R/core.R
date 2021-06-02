@@ -26,26 +26,64 @@ import_files <- function() {
 #' calcrle()
 calcrle <- function(expTable, logTable = FALSE, plotTable = FALSE) {
   if (logTable == FALSE) {
-    expTable <- log2(expTable + 1)
+    expTable <- as.data.frame(log2(expTable + 1))
   }
   
   #Calculate median value for rows (genes)
-  med <- expTable %>% dplyr::rowwise() %>% dplyr::summarise(median = stats::median(c_across(V1:V12)))
+  med <- expTable %>% dplyr::rowwise() %>% dplyr::summarise(median = stats::median(c_across()))
   
   #Maps and calculate log2 - median to a new table
   rle <- purrr::map2_df(expTable, med, `-`)
   
   #Plots if TRUE
   if (plotTable == TRUE){
-    rle <- rle %>% dplyr::mutate(gene = rownames(tbl_log))
+    rle <- rle %>% dplyr::mutate(gene = rownames(expTable))
     
     #Long format
-    rle_long <- rle %>% dplyr::pivot_longer(!gene, names_to = "sample")
+    rle_long <- rle %>% tidyr::pivot_longer(!gene, names_to = "sample")
     
     ggplot2::ggplot(rle_long, aes(x=sample, y=value, fill=sample)) + 
       geom_boxplot(outlier.color = NA) + 
       coord_cartesian(ylim = c(-5, 2)) + 
-      scale_x_discrete(limits = colnames(tbl_log)) + 
+      scale_x_discrete(limits = colnames(expTable)) + 
       geom_hline(yintercept = 0, linetype="dashed")
   }
+}
+
+#' norm_quantiles function
+#'
+#' This function normalizes by quantile.
+#' @param expTable Expression table.
+#' @param logTable If expression table is already on log scale. Defaults to FALSE.
+#' @keywords normalization
+#' @export
+#' @examples
+#' norm_quantiles(expression)
+norm_quantiles <- function(expTable, logTable = FALSE) {
+  if (logTable) {
+    exp_norm <- preprocessCore::normalize.quantiles(log2(expTable))
+  }
+  else {
+    exp_norm <- preprocessCore::normalize.quantiles(log2(expTable + 1))
+  }
+  return(exp_norm)
+}
+
+#' norm_deseq function
+#'
+#' This function normalizes by DESeq2.
+#' @param txiObject txi object.
+#' @keywords normalization
+#' @export
+#' @examples
+#' norm_deseq(expression)
+norm_deseq <- function(txiObject) {
+  sampleTable <- data.frame(matrix("ewing", nrow = 26))
+  rownames(sampleTable) <- colnames(txiObject$counts)
+  
+  ddsTxi <- DESeq2::DESeqDataSetFromTximport(txiObject, colData = sampleTable, design = ~ 1)
+  ddsTxi <- DESeq2::estimateSizeFactors(ddsTxi)
+  norm_dds <- counts(ddsTxi, normalized = TRUE)
+  
+  return(norm_dds)
 }
