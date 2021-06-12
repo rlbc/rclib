@@ -87,3 +87,64 @@ norm_deseq <- function(txiObject) {
   
   return(norm_dds)
 }
+
+#' calc_var function
+#'
+#' This function calculates the various variance and plots.
+#' @param expTable Table with expression values.
+#' @param logTable If expression table is already on log scale. Defaults to FALSE.
+#' @keywords Variance
+#' @export
+#' @examples
+#' calc_var(expression)
+calc_var <- function(expTable, logTable = FALSE) {
+  if (!logTable) {
+    expTable <- log2(expTable + 1)
+  }
+  
+  # Transpose table
+  t_element <- as.data.frame(t(expTable))
+    
+  # Calculate variance
+  v_element <- as.data.frame(sapply(t_element, stats::var))
+  
+  return(v_element)
+}
+
+#' calc_mean function
+#'
+#' This function calculates the various means.
+#' @param expTable Table with expression values.
+#' @param logTable If expression table is already on log scale. Defaults to FALSE.
+#' @keywords Mean
+#' @export
+#' @examples
+#' calc_mean(expression)
+calc_mean <- function(expTable, logTable = FALSE) {
+  if (!logTable) {
+    expTable <- log2(expTable + 1)
+  }
+  
+  # Transpose table
+  t_element <- as.data.frame(t(expTable))
+  
+  # Calculate variance
+  v_element <- as.data.frame(sapply(t_element, mean))
+  
+  colnames(v_element) <- "mean"
+  
+  return(v_element)
+}
+
+#' plotGenes function
+#'
+#' This function plots various genes.
+#' @param expTable Expression table.
+#' @param geneList List of genes to plot.
+#' @keywords plot
+#' @export
+#' @examples
+#' plotGenes(expression)
+plotGenes <- function(expTable, geneList) {
+  
+}
