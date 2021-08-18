@@ -46,7 +46,8 @@ calcrle <- function(expTable, logTable = FALSE, plotTable = FALSE) {
       geom_boxplot(outlier.color = NA) + 
       coord_cartesian(ylim = c(-5, 2)) + 
       scale_x_discrete(limits = colnames(expTable)) + 
-      geom_hline(yintercept = 0, linetype="dashed")
+      geom_hline(yintercept = 0, linetype="dashed") +
+      theme(axis.text.x = element_text(angle=45, hjust=1, size=rel(0.9)))
   }
 }
 
