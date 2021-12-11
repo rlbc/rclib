@@ -47,7 +47,7 @@ calcrle <- function(expTable, logTable = FALSE, plotTable = FALSE) {
       coord_cartesian(ylim = c(-5, 2)) + 
       scale_x_discrete(limits = colnames(expTable)) + 
       geom_hline(yintercept = 0, linetype="dashed") +
-      theme(axis.text.x = element_text(angle=45, hjust=1, size=rel(0.9)))
+      theme(axis.text.x = element_text(angle=45, hjust=1, size=rel(0.9)), legend.position = "none")
   }
 }
 
@@ -63,9 +63,13 @@ calcrle <- function(expTable, logTable = FALSE, plotTable = FALSE) {
 norm_quantiles <- function(expTable, logTable = FALSE) {
   if (logTable) {
     exp_norm <- preprocessCore::normalize.quantiles(log2(expTable))
+    colnames(exp_norm) <- colnames(expTable)
+    rownames(exp_norm) <- rownames(expTable)
   }
   else {
     exp_norm <- preprocessCore::normalize.quantiles(log2(expTable + 1))
+    colnames(exp_norm) <- colnames(expTable)
+    rownames(exp_norm) <- rownames(expTable)
   }
   return(exp_norm)
 }
@@ -147,5 +151,9 @@ calc_mean <- function(expTable, logTable = FALSE) {
 #' @examples
 #' plotGenes(expression)
 plotGenes <- function(expTable, geneList) {
+  
+}
+
+annot <- function(fileIn) {
   
 }
